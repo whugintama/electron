@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Keeley Hammond <khammond@slack-corp.com>
+Date: Sun, 18 Feb 2024 21:27:27 -0800
+Subject: fix: allow draggable regions outside of WCO
+
+Fixes a bug introduced by crrev.com/c/4814003, whiched caused a
+regression where draggable regions (set using the app-region CSS
+property) did not work unless an app uses a Window Controls Overlay
+or is Borderless.
+
+This patch can be removed when a fix is submitted upstream, or a
+more robust solution for other use cases (titlebars, etc) is found.
+
+diff --git a/third_party/blink/renderer/core/frame/local_frame_view.cc b/third_party/blink/renderer/core/frame/local_frame_view.cc
+index 3637beaed6dcab3885c4814d1e7869cf0725abd2..0411d781b6ce1095381cfe1aa5c8d986e63c9f26 100644
+--- a/third_party/blink/renderer/core/frame/local_frame_view.cc
++++ b/third_party/blink/renderer/core/frame/local_frame_view.cc
+@@ -1724,8 +1724,7 @@ void LocalFrameView::NotifyPageThatContentAreaWillPaint() const {
+ 
+ void LocalFrameView::UpdateDocumentAnnotatedRegions() const {
+   Document* document = frame_->GetDocument();
+-  if (!document->HasAnnotatedRegions() ||
+-      !frame_->GetPage()->GetChromeClient().SupportsAppRegion()) {
++  if (!document->HasAnnotatedRegions() {
+     return;
+   }
+ 
