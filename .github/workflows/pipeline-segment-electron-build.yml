@@ -44,6 +44,11 @@ on:
         required: true
         type: string
         default: '0'
+      is-asan: 
+        description: 'Building the Address Sanitizer (ASan) Linux build'
+        required: false
+        type: boolean
+        default: false
 
 
 concurrency:
@@ -63,6 +68,7 @@ env:
   CHECK_DIST_MANIFEST: true
   IS_GHA_RELEASE: true
   ELECTRON_OUT_DIR: Default
+  IS_ASAN: ${{ inputs.is-asan }}
 
 jobs:
   build:
@@ -100,6 +106,8 @@ jobs:
           GN_EXTRA_ARGS='target_cpu="arm" build_tflite_with_xnnpack=false'
         elif [ "${{ inputs.target-arch }}" = "arm64" ]; then
           GN_EXTRA_ARGS='target_cpu="arm64" fatal_linker_warnings=false enable_linux_installer=false'
+        elif [ "${{ inputs.is-asan }}" = true ]; then
+          GN_EXTRA_ARGS='is_asan=true'
         fi
         echo "GN_EXTRA_ARGS=$GN_EXTRA_ARGS" >> $GITHUB_ENV
     - name: Get Depot Tools
